@@ -2,6 +2,10 @@
   "name": "real_donation_web",
   "version": "0.0.1",
   "type": "module",
+  "description": "Web for Real Donation Smart Contract.",
+  "repository": "https://github.com/escX/real_donation_web",
+  "author": "escX",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
