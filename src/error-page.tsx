@@ -1,16 +1,34 @@
-import { useRouteError } from "react-router-dom";
+import { Button, Result, Typography } from 'antd'
+import { useNavigate, useRouteError } from 'react-router-dom'
 
 export default function ErrorPage() {
-  const error: any = useRouteError();
-  console.error(error);
+  const navigate = useNavigate()
+  const error: any = useRouteError()
+  console.error(error)
 
   return (
     <div id="error-page">
-      <h1>Oops!</h1>
-      <p>Sorry, an unexpected error has occurred.</p>
-      <p>
-        <i>{error.statusText || error.message}</i>
-      </p>
+      <Result
+        status="error"
+        title="Oops!"
+        subTitle="Sorry, an unexpected error has occurred."
+        extra={[
+          <Button type="primary" key="back" onClick={() => navigate('/')}>
+            Back Home
+          </Button>
+        ]}
+      >
+        <Typography.Paragraph>
+          <Typography.Text
+            strong
+            style={{
+              fontSize: 16,
+            }}
+          >
+            <i>{error.statusText || error.message}</i>
+          </Typography.Text>
+        </Typography.Paragraph>
+      </Result>
     </div>
-  );
+  )
 }

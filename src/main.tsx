@@ -1,19 +1,34 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { ConfigProvider } from 'antd'
 import ErrorPage from './error-page'
-import Index from './pages/Index'
+import Layout from './pages/Layout'
+import routes from './routes'
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Index />,
-    errorElement: <ErrorPage />
+    path: '/',
+    element: <Layout />,
+    errorElement: <ErrorPage />,
+    children: routes,
   },
 ])
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('app')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ConfigProvider
+      theme={{
+        token: {
+          "colorPrimary": "#363636",
+          "colorInfo": "#363636",
+          "colorSuccess": "#009298",
+          "colorWarning": "#d59b00",
+          "colorError": "#c50023",
+        }
+      }}
+    >
+      <RouterProvider router={router} />
+    </ConfigProvider>
   </React.StrictMode>,
 )

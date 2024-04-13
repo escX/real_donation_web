@@ -1,3 +1,3 @@
-export default function App() {
-  return <>index</>
+export default function Index() {
+  return <>Index</>
 }
