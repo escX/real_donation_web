@@ -1,6 +1,6 @@
 import { Contract, JsonRpcProvider, JsonRpcSigner, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
-import { Tabs, TabsProps } from 'antd'
+import { Drawer, Tabs, TabsProps } from 'antd'
 import abi from '../../abi'
 import TableCease from './components/TableCease'
 import TableCreate from './components/TableCreate'
@@ -8,7 +8,6 @@ import TableModifyDescription from './components/TableModifyDescription'
 import TableDonate from './components/TableDonate'
 import { ContractEvent } from './const'
 import PanelProject from './components/PanelProject'
-import styles from './index.module.scss'
 
 const jsonRpcUrl = 'http://localhost:8545'
 const deployedAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
@@ -20,6 +19,7 @@ export default function Index() {
   const [blockNumber, setBlockNumber] = useState(0)
   const [activedTab, setActivedTab] = useState<ContractEvent>(ContractEvent.Create)
   const [queryHash, setQueryHash] = useState<string>()
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
     const provider = new ethers.JsonRpcProvider(jsonRpcUrl)
@@ -40,26 +40,31 @@ export default function Index() {
     }
   }, [provider, contract])
 
+  const handleQueryHash = (hash: string) => {
+    setQueryHash(hash)
+    setDrawerOpen(true)
+  }
+
   const items: TabsProps['items'] = [
     {
       key: ContractEvent.Create as unknown as string,
       label: '创建',
-      children: <TableCreate blockNumber={activedTab === ContractEvent.Create ? blockNumber : 0} contract={contract} onQueryHash={setQueryHash} />,
+      children: <TableCreate blockNumber={activedTab === ContractEvent.Create ? blockNumber : 0} contract={contract} onQueryHash={handleQueryHash} />,
     },
     {
       key: ContractEvent.Donate as unknown as string,
       label: '捐赠',
-      children: <TableDonate blockNumber={activedTab === ContractEvent.Donate ? blockNumber : 0} contract={contract} onQueryHash={setQueryHash} />,
+      children: <TableDonate blockNumber={activedTab === ContractEvent.Donate ? blockNumber : 0} contract={contract} onQueryHash={handleQueryHash} />,
     },
     {
       key: ContractEvent.Cease as unknown as string,
       label: '终止',
-      children: <TableCease blockNumber={activedTab === ContractEvent.Cease ? blockNumber : 0} contract={contract} onQueryHash={setQueryHash} />,
+      children: <TableCease blockNumber={activedTab === ContractEvent.Cease ? blockNumber : 0} contract={contract} onQueryHash={handleQueryHash} />,
     },
     {
       key: ContractEvent.Modify as unknown as string,
       label: '修改描述',
-      children: <TableModifyDescription blockNumber={activedTab === ContractEvent.Modify ? blockNumber : 0} contract={contract} onQueryHash={setQueryHash} />,
+      children: <TableModifyDescription blockNumber={activedTab === ContractEvent.Modify ? blockNumber : 0} contract={contract} onQueryHash={handleQueryHash} />,
     },
   ]
 
@@ -95,18 +100,15 @@ export default function Index() {
 
   return (
     <>
-      <div className={styles.flex}>
-        <div className={styles.logs}>
-          <Tabs
-            items={items}
-            activeKey={activedTab as unknown as string}
-            onChange={value => setActivedTab(value as unknown as ContractEvent)}
-          />
-        </div>
-        {contract && queryHash && <div className={styles.details}>
-          <PanelProject contract={contract} hash={queryHash} />
-        </div>}
-      </div>
+      <Tabs
+        items={items}
+        activeKey={activedTab as unknown as string}
+        onChange={value => setActivedTab(value as unknown as ContractEvent)}
+      />
+
+      <Drawer title="项目详情" width={700} onClose={() => setDrawerOpen(false)} open={drawerOpen}>
+        {contract && queryHash && <PanelProject contract={contract} hash={queryHash} />}
+      </Drawer>
 
       <div onClick={handleCreate}>Create</div>
       <div onClick={handleModify}>Modify</div>

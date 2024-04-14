@@ -70,6 +70,11 @@ const Index: FC<Props> = ({ contract, hash }) => {
       />
     }))
 
+    let totalRecieved = 0
+    projectLog.donateList.forEach(item => {
+      totalRecieved += Number(item.amount)
+    })
+
     const stateItem = projectLog.ceaseTime ? [{
       label: '终止时间',
       children: blockTimeToStr(projectLog.ceaseTime)
@@ -80,6 +85,14 @@ const Index: FC<Props> = ({ contract, hash }) => {
       span: 2,
       children: <Collapse items={modifyCollapseItems} bordered={false} ghost size="small" />
     }]
+
+    const recievedItem = projectLog.donateList.length === 0 ? [] : [
+      {
+        label: '捐赠总额',
+        span: 2,
+        children: totalRecieved
+      }
+    ]
 
     const donateItem = projectLog.donateList.length === 0 ? [] : [{
       label: '捐赠',
@@ -105,20 +118,22 @@ const Index: FC<Props> = ({ contract, hash }) => {
         </Typography.Text>
       },
       {
-        label: '描述',
-        children: currDescription
-      },
-      {
         label: '创建时间',
         children: blockTimeToStr(projectLog.createTime)
       },
-      ...stateItem,
       {
         label: '状态',
-        span: projectLog.ceaseTime ? 2 : 1,
+        span: projectLog.ceaseTime ? 1 : 2,
         children: projectLog.ceaseTime ? <Badge status="error" text="已终止" /> : <Badge status="success" text="运行中" />
       },
+      ...stateItem,
+      {
+        label: '描述',
+        span: 2,
+        children: currDescription
+      },
       ...modifyDescriptionItem,
+      ...recievedItem,
       ...donateItem
     ]
   }, [currDescription, projectLog])
@@ -131,7 +146,6 @@ const Index: FC<Props> = ({ contract, hash }) => {
 
   return (
     <Descriptions
-      title="项目详情"
       labelStyle={{ width: '110px' }}
       bordered
       column={2}
