@@ -1,6 +1,5 @@
 import { Contract, EventLog, ethers } from 'ethers'
-import { ContractEvent, eventSignature } from './pages/Index/const'
-import { ProjectLog } from './pages/Index/components/PanelProject/const'
+import { ContractEvent, ProjectLog, eventSignature } from './pages/Index/const'
 
 export function omitHash(hash: string) {
   if (!hash || hash.length <= 16) {
@@ -34,10 +33,10 @@ export async function queryProjectLog(contract: Contract, hash: string): Promise
     name: createLogs[0].args[2],
     description: createLogs[0].args[3],
     createTime: createLogs[0].args[4],
-    ceaseTime: ceaseLogs[0]?.args[1] ?? null,
+    ceaseTime: ceaseLogs[0]?.args[2] ?? null,
     modifyList: modifyLogs.map(item => ({
-      description: item.args[1],
-      modifyTime: item.args[2]
+      description: item.args[2],
+      modifyTime: item.args[3]
     })),
     donateList: DonateLogs.map(item => ({
       donator: item.args[1],

@@ -59,6 +59,12 @@ export default [
       },
       {
         "indexed": false,
+        "internalType": "string",
+        "name": "projectName",
+        "type": "string"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "ceaseTime",
         "type": "uint256"
@@ -161,6 +167,12 @@ export default [
         "internalType": "bytes32",
         "name": "projectHash",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "projectName",
+        "type": "string"
       },
       {
         "indexed": false,

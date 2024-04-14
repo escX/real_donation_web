@@ -1,26 +1,23 @@
 import { Contract, EventLog } from 'ethers'
 import { Table, TableProps, Typography } from 'antd'
-import { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useState } from 'react'
-import { EventCreateData, TableRefData } from '../../const'
+import { FC, useEffect, useState } from 'react'
 import { blockTimeToStr, omitHash } from '../../../../utils'
+import { EventCreateData } from './const'
 
 interface Props {
+  blockNumber: number
   contract: Contract | null
   onQueryHash: (data: string) => void
 }
 
-const Index = ({ contract, onQueryHash }: Props, ref: ForwardedRef<TableRefData>) => {
+const Index: FC<Props> = ({ blockNumber, contract, onQueryHash }) => {
   const [sourceData, setSourceData] = useState<EventCreateData[]>([])
 
   useEffect(() => {
-    if (!!contract) {
+    if (!!contract && !!blockNumber) {
       loadData(contract)
     }
-  }, [contract])
-
-  useImperativeHandle(ref, () => ({
-    reload: loadData
-  }), [contract])
+  }, [contract, blockNumber])
 
   const loadData = async (contract: Contract) => {
     contract.queryFilter('Create').then((data: any) => {
@@ -69,7 +66,7 @@ const Index = ({ contract, onQueryHash }: Props, ref: ForwardedRef<TableRefData>
 
   return (
     <Table
-      rowKey="hash"
+      rowKey="blockHash"
       columns={column}
       dataSource={sourceData}
       pagination={{
@@ -79,4 +76,4 @@ const Index = ({ contract, onQueryHash }: Props, ref: ForwardedRef<TableRefData>
   )
 }
 
-export default forwardRef(Index)
+export default Index

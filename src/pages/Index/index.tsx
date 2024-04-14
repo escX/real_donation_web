@@ -1,12 +1,12 @@
-import { Contract, JsonRpcSigner, ethers } from 'ethers'
-import { createRef, useEffect, useState } from 'react'
+import { Contract, JsonRpcProvider, JsonRpcSigner, ethers } from 'ethers'
+import { useEffect, useState } from 'react'
 import { Tabs, TabsProps } from 'antd'
 import abi from '../../abi'
 import TableCease from './components/TableCease'
 import TableCreate from './components/TableCreate'
 import TableModifyDescription from './components/TableModifyDescription'
 import TableDonate from './components/TableDonate'
-import { ContractEvent, TableRefData } from './const'
+import { ContractEvent } from './const'
 import PanelProject from './components/PanelProject'
 import styles from './index.module.scss'
 
@@ -14,15 +14,12 @@ const jsonRpcUrl = 'http://localhost:8545'
 const deployedAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 
 export default function Index() {
+  const [provider, setProvider] = useState<JsonRpcProvider | null>(null)
   const [accounts, setAccounts] = useState<JsonRpcSigner[]>([])
   const [contract, setContract] = useState<Contract | null>(null)
+  const [blockNumber, setBlockNumber] = useState(0)
   const [activedTab, setActivedTab] = useState<ContractEvent>(ContractEvent.Create)
   const [queryHash, setQueryHash] = useState<string>()
-
-  const createTableRef = createRef<TableRefData>()
-  const ceaseTableRef = createRef<TableRefData>()
-  const donateTableRef = createRef<TableRefData>()
-  const modifyDescriptionTableRef = createRef<TableRefData>()
 
   useEffect(() => {
     const provider = new ethers.JsonRpcProvider(jsonRpcUrl)
@@ -31,60 +28,47 @@ export default function Index() {
       setAccounts(accounts)
     })
 
+    setProvider(provider)
     setContract(contract)
   }, [jsonRpcUrl, deployedAddress])
 
   useEffect(() => {
-    if (!!contract) {
-      contract.on('*', (event) => {
-        switch (event.eventName) {
-          case 'Create':
-            createTableRef.current?.reload(contract)
-            break
-          case 'Donate':
-            donateTableRef.current?.reload(contract)
-            break
-          case 'Cease':
-            ceaseTableRef.current?.reload(contract)
-            break
-          case 'ModifyDescription':
-            modifyDescriptionTableRef.current?.reload(contract)
-            break
-        }
+    if (!!provider && !!contract) {
+      contract.on('*', () => {
+        provider.getBlockNumber().then(setBlockNumber)
       })
     }
-  }, [contract])
+  }, [provider, contract])
 
   const items: TabsProps['items'] = [
     {
       key: ContractEvent.Create as unknown as string,
       label: '创建',
-      children: <TableCreate ref={createTableRef} contract={contract} onQueryHash={setQueryHash} />,
+      children: <TableCreate blockNumber={activedTab === ContractEvent.Create ? blockNumber : 0} contract={contract} onQueryHash={setQueryHash} />,
     },
     {
       key: ContractEvent.Donate as unknown as string,
       label: '捐赠',
-      children: <TableDonate ref={donateTableRef} contract={contract} onQueryHash={setQueryHash} />,
+      children: <TableDonate blockNumber={activedTab === ContractEvent.Donate ? blockNumber : 0} contract={contract} onQueryHash={setQueryHash} />,
     },
     {
       key: ContractEvent.Cease as unknown as string,
       label: '终止',
-      children: <TableCease ref={ceaseTableRef} contract={contract} onQueryHash={setQueryHash} />,
+      children: <TableCease blockNumber={activedTab === ContractEvent.Cease ? blockNumber : 0} contract={contract} onQueryHash={setQueryHash} />,
     },
     {
       key: ContractEvent.Modify as unknown as string,
       label: '修改描述',
-      children: <TableModifyDescription ref={modifyDescriptionTableRef} contract={contract} onQueryHash={setQueryHash} />,
+      children: <TableModifyDescription blockNumber={activedTab === ContractEvent.Modify ? blockNumber : 0} contract={contract} onQueryHash={setQueryHash} />,
     },
   ]
 
+  const hash = '0x6e34515122d75757fc67b51e6c45d9827b84032e33056c2f0793d185a4b5270e'
   const handleCreate = async () => {
     const response = await contract?.connect(accounts[0]).getFunction('create')('q', 'w')
     await response.wait()
     console.log('creat')
   }
-
-  const hash = '0xc697d1125c7b3061d25d508dd073a7752cabbebfe2a2a9311e9129b48e1003ba'
 
   const handleCease = async () => {
     const response = await contract?.connect(accounts[0]).getFunction('cease')(hash)

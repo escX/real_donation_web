@@ -1,8 +1,8 @@
 import { Contract } from 'ethers'
 import { FC, useEffect, useMemo, useState } from 'react'
 import { blockTimeToStr, omitHash, queryProjectLog } from '../../../../utils'
-import { ProjectLog } from './const'
 import { Badge, Collapse, Descriptions, DescriptionsProps, Typography } from 'antd'
+import { ProjectLog } from '../../const'
 
 interface Props {
   contract: Contract
@@ -24,7 +24,7 @@ const Index: FC<Props> = ({ contract, hash }) => {
     return modifyList[modifyList.length - 1].description
   }, [projectLog])
 
-  const items = useMemo<DescriptionsProps['items']>(() => {
+  const DescriptionItems = useMemo<DescriptionsProps['items']>(() => {
     if (!projectLog) {
       return []
     }
@@ -135,7 +135,7 @@ const Index: FC<Props> = ({ contract, hash }) => {
       labelStyle={{ width: '110px' }}
       bordered
       column={2}
-      items={items}
+      items={DescriptionItems}
     />
   )
 }
