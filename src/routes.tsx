@@ -1,8 +1,10 @@
-import Index from './pages/Index'
-import CreateProject from './pages/CreateProject'
-import MyProject from './pages/MyProject'
-import MyDonation from './pages/MyDonation'
+import React from 'react'
 import { ThunderboltOutlined, HeartOutlined, FireOutlined, StarOutlined } from '@ant-design/icons'
+
+const Index = React.lazy(() => import('./pages/Index'))
+const CreateProject = React.lazy(() => import('./pages/CreateProject'))
+const MyProject = React.lazy(() => import('./pages/MyProject'))
+const MyDonation = React.lazy(() => import('./pages/MyDonation'))
 
 export default [
   {

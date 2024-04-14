@@ -1,6 +1,6 @@
 $header-height: 64px;
 $footer-height: 36px;
-$sider-width: 256px;
+$sider-width: 160px;
 
 .layout {
   height: 100vh;
@@ -21,11 +21,11 @@ $sider-width: 256px;
 
   .main {
     min-height: calc(100vh - $header-height - $footer-height - 2px);
-    padding: 20px 50px;
     box-sizing: border-box;
 
     .content {
-      padding-left: $sider-width;
+      margin-left: $sider-width;
+      padding: 10px 30px;
     }
 
     .sider {

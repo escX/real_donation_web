@@ -1,5 +1,5 @@
 import { Divider, Menu, Typography } from 'antd'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import styles from './layout.module.scss'
 import routes from '../routes'
@@ -22,7 +22,7 @@ export default function Index() {
     <div className={styles.layout}>
       <div className={styles.header}>
         <Typography.Title className={styles.title} level={4}>Real Donation</Typography.Title>
-
+        {/* todo: 连接账户、github、部署地址 */}
         <Divider className={styles.divider} />
       </div>
 
@@ -41,14 +41,24 @@ export default function Index() {
         </div>
 
         <div className={styles.content}>
-          <Outlet />
+          <Suspense>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
 
       <Divider className={styles.divider} />
 
       <div className={styles.footer}>
-        Copyright © {new Date().getFullYear()} escx
+        <Typography.Text>
+          Copyright&nbsp;&copy;&nbsp;{new Date().getFullYear()}&nbsp;
+        </Typography.Text>
+        <Typography.Link href="https://github.com/escX" target="_blank">
+          escx
+        </Typography.Link>
+        <Typography.Text>
+          .&nbsp;All Rights Reserved.
+        </Typography.Text>
       </div>
     </div>
   )
