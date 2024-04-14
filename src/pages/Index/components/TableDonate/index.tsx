@@ -53,7 +53,7 @@ const Index: FC<Props> = ({ blockNumber, contract, onQueryHash }) => {
       </Typography.Paragraph>
     },
     {
-      title: '捐赠者',
+      title: '捐赠人',
       dataIndex: 'donator',
       render: value => <Typography.Paragraph copyable={{ text: value }} style={{ margin: 0 }}>
         {omitHash(value)}

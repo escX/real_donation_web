@@ -1,5 +1,3 @@
-import { Contract } from 'ethers'
-
 export enum ContractEvent {
   Create,
   Donate,

@@ -6,8 +6,10 @@ import TableCease from './components/TableCease'
 import TableCreate from './components/TableCreate'
 import TableModifyDescription from './components/TableModifyDescription'
 import TableDonate from './components/TableDonate'
-import { ContractEvent } from './const'
+import { ContractEvent, ProjectLog } from './const'
 import PanelProject from './components/PanelProject'
+import { queryProjectLog } from '../../utils'
+import PanelTopDonator from './components/PanelTopDonator'
 
 const jsonRpcUrl = 'http://localhost:8545'
 const deployedAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
@@ -18,7 +20,7 @@ export default function Index() {
   const [contract, setContract] = useState<Contract | null>(null)
   const [blockNumber, setBlockNumber] = useState(0)
   const [activedTab, setActivedTab] = useState<ContractEvent>(ContractEvent.Create)
-  const [queryHash, setQueryHash] = useState<string>()
+  const [projectLog, setProjectLog] = useState<ProjectLog | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function Index() {
   }, [provider, contract])
 
   const handleQueryHash = (hash: string) => {
-    setQueryHash(hash)
+    queryProjectLog(contract!, hash).then(setProjectLog)
     setDrawerOpen(true)
   }
 
@@ -68,7 +70,7 @@ export default function Index() {
     },
   ]
 
-  const hash = '0x6e34515122d75757fc67b51e6c45d9827b84032e33056c2f0793d185a4b5270e'
+  const hash = '0x4fa5ddce34beab5ab5908812fabe1114beba0f135036ce910cd405bb7f696a71'
   const handleCreate = async () => {
     const response = await contract?.connect(accounts[0]).getFunction('create')('q', 'w')
     await response.wait()
@@ -88,7 +90,7 @@ export default function Index() {
   }
 
   const handleDonate = async () => {
-    const response = await contract?.connect(accounts[1]).getFunction('donate')(hash, '我给你捐钱了', { value: 100 })
+    const response = await contract?.connect(accounts[8]).getFunction('donate')(hash, '我给你捐钱了', { value: 55 })
     await response.wait()
     console.log('donate')
   }
@@ -107,7 +109,8 @@ export default function Index() {
       />
 
       <Drawer title="项目详情" width={700} onClose={() => setDrawerOpen(false)} open={drawerOpen}>
-        {contract && queryHash && <PanelProject contract={contract} hash={queryHash} />}
+        <PanelProject projectLog={projectLog} />
+        {projectLog?.donateList && projectLog?.donateList.length > 0 && <PanelTopDonator donateList={projectLog.donateList} />}
       </Drawer>
 
       <div onClick={handleCreate}>Create</div>

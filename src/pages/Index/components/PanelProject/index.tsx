@@ -1,16 +1,13 @@
-import { Contract } from 'ethers'
-import { FC, useEffect, useMemo, useState } from 'react'
-import { blockTimeToStr, omitHash, queryProjectLog } from '../../../../utils'
+import { FC, useMemo } from 'react'
+import { blockTimeToStr, omitHash } from '../../../../utils'
 import { Badge, Collapse, Descriptions, DescriptionsProps, Typography } from 'antd'
 import { ProjectLog } from '../../const'
 
 interface Props {
-  contract: Contract
-  hash: string
+  projectLog: ProjectLog | null
 }
 
-const Index: FC<Props> = ({ contract, hash }) => {
-  const [projectLog, setProjectLog] = useState<ProjectLog | null>(null)
+const Index: FC<Props> = ({ projectLog }) => {
   const currDescription = useMemo(() => {
     if (!projectLog) {
       return null
@@ -68,7 +65,7 @@ const Index: FC<Props> = ({ contract, hash }) => {
           },
         ]}
       />
-    }))
+    })).reverse()
 
     let totalRecieved = 0
     projectLog.donateList.forEach(item => {
@@ -88,7 +85,7 @@ const Index: FC<Props> = ({ contract, hash }) => {
 
     const recievedItem = projectLog.donateList.length === 0 ? [] : [
       {
-        label: '捐赠总额',
+        label: '受赠金额',
         span: 2,
         children: totalRecieved
       }
@@ -112,7 +109,7 @@ const Index: FC<Props> = ({ contract, hash }) => {
         </Typography.Text>
       },
       {
-        label: '创建者',
+        label: '创建人',
         children: <Typography.Text copyable={{ text: projectLog.creator }}>
           {omitHash(projectLog.creator)}
         </Typography.Text>
@@ -137,12 +134,6 @@ const Index: FC<Props> = ({ contract, hash }) => {
       ...donateItem
     ]
   }, [currDescription, projectLog])
-
-  useEffect(() => {
-    if (!!contract) {
-      queryProjectLog(contract, hash).then(setProjectLog)
-    }
-  }, [contract, hash])
 
   return (
     <Descriptions
