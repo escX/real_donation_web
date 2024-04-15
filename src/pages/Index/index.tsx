@@ -47,7 +47,9 @@ export default function Index() {
     },
   ]
 
-  // 测试代码，未来会删除，记得try catch await-function
+  // 测试代码，未来会删除
+  // 记得校验accounts和chainId
+  // 记得try catch await-function
   const hash = '0x4fa5ddce34beab5ab5908812fabe1114beba0f135036ce910cd405bb7f696a71'
   const handleCreate = async () => {
     const signer = await provider?.getSigner()!
