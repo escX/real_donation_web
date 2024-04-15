@@ -30,6 +30,9 @@ ReactDOM.createRoot(document.getElementById('app')!).render(
           "Menu": {
             "itemSelectedColor": "rgb(255, 255, 255)"
           },
+          "Select": {
+            "optionSelectedColor": "rgb(255, 255, 255)"
+          },
           "Typography": {
             "colorLinkActive": "rgb(0, 107, 115)",
             "colorLinkHover": "rgb(27, 166, 166)",

@@ -20,14 +20,13 @@ const Index: FC<Props> = ({ blockNumber, contract, onQueryHash }) => {
   }, [contract, blockNumber])
 
   const loadData = async (contract: Contract) => {
-    contract.queryFilter('Cease').then((data: any) => {
-      setSourceData(data.map((item: EventLog) => ({
-        blockHash: item.blockHash,
-        hash: item.args[0],
-        name: item.args[1],
-        ceaseTime: item.args[2],
-      })).reverse())
-    })
+    const log = await contract.queryFilter('Cease') as EventLog[]
+    setSourceData(log.map((item: EventLog) => ({
+      blockHash: item.blockHash,
+      hash: item.args[0],
+      name: item.args[1],
+      ceaseTime: item.args[2],
+    })).reverse())
   }
 
   const column: TableProps<EventCeaseData>['columns'] = [

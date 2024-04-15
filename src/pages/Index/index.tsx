@@ -1,7 +1,5 @@
-import { Contract, JsonRpcProvider, JsonRpcSigner, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import { Drawer, Tabs, TabsProps } from 'antd'
-import abi from '../../abi'
 import TableCease from './components/TableCease'
 import TableCreate from './components/TableCreate'
 import TableModifyDescription from './components/TableModifyDescription'
@@ -10,41 +8,43 @@ import { ContractEvent, ProjectLog } from './const'
 import PanelProject from './components/PanelProject'
 import { queryProjectLog } from '../../utils'
 import PanelTopDonator from './components/PanelTopDonator'
-
-const jsonRpcUrl = 'http://localhost:8545'
-const deployedAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+import { useOutletContext } from 'react-router-dom'
+import { LayoutContext } from '../const'
+import { BrowserProvider } from 'ethers'
 
 export default function Index() {
-  const [provider, setProvider] = useState<JsonRpcProvider | null>(null)
-  const [accounts, setAccounts] = useState<JsonRpcSigner[]>([])
-  const [contract, setContract] = useState<Contract | null>(null)
+  const { provider, contract } = useOutletContext<LayoutContext>()
   const [blockNumber, setBlockNumber] = useState(0)
   const [activedTab, setActivedTab] = useState<ContractEvent>(ContractEvent.Create)
   const [projectLog, setProjectLog] = useState<ProjectLog | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
-    const provider = new ethers.JsonRpcProvider(jsonRpcUrl)
-    const contract = new ethers.Contract(deployedAddress, abi, provider)
-    provider.listAccounts().then(accounts => {
-      setAccounts(accounts)
-    })
-
-    setProvider(provider)
-    setContract(contract)
-  }, [jsonRpcUrl, deployedAddress])
+    updateBlockNumber(provider)
+  }, [provider])
 
   useEffect(() => {
     if (!!provider && !!contract) {
-      contract.on('*', () => {
-        provider.getBlockNumber().then(setBlockNumber)
+      contract.removeAllListeners('*').then(() => {
+        contract.on('*', () => {
+          console.log(111111)
+          updateBlockNumber(provider)
+        })
       })
     }
   }, [provider, contract])
 
+  const updateBlockNumber = (provider: BrowserProvider | null) => {
+    if (!!provider) {
+      provider.getBlockNumber().then(setBlockNumber)
+    }
+  }
+
   const handleQueryHash = (hash: string) => {
-    queryProjectLog(contract!, hash).then(setProjectLog)
-    setDrawerOpen(true)
+    if (!!contract) {
+      queryProjectLog(contract, hash).then(setProjectLog)
+      setDrawerOpen(true)
+    }
   }
 
   const items: TabsProps['items'] = [
@@ -70,27 +70,32 @@ export default function Index() {
     },
   ]
 
+  // 测试代码，未来会删除，记得try catch await-function
   const hash = '0x4fa5ddce34beab5ab5908812fabe1114beba0f135036ce910cd405bb7f696a71'
   const handleCreate = async () => {
-    const response = await contract?.connect(accounts[0]).getFunction('create')('q', 'w')
+    const signer = await provider?.getSigner()!
+    const response = await contract?.connect(signer).getFunction('create')('q', 'w')
     await response.wait()
     console.log('creat')
   }
 
   const handleCease = async () => {
-    const response = await contract?.connect(accounts[0]).getFunction('cease')(hash)
+    const signer = await provider?.getSigner()!
+    const response = await contract?.connect(signer).getFunction('cease')(hash)
     await response.wait()
     console.log('cease')
   }
 
   const handleModify = async () => {
-    const response = await contract?.connect(accounts[0]).getFunction('modifyDescription')(hash, '修改了')
+    const signer = await provider?.getSigner()!
+    const response = await contract?.connect(signer).getFunction('modifyDescription')(hash, '修改了')
     await response.wait()
     console.log('modify')
   }
 
   const handleDonate = async () => {
-    const response = await contract?.connect(accounts[8]).getFunction('donate')(hash, '我给你捐钱了', { value: 55 })
+    const signer = await provider?.getSigner()!
+    const response = await contract?.connect(signer).getFunction('donate')(hash, '我给你捐钱了', { value: 55 })
     await response.wait()
     console.log('donate')
   }

@@ -20,17 +20,16 @@ const Index: FC<Props> = ({ blockNumber, contract, onQueryHash }) => {
   }, [contract, blockNumber])
 
   const loadData = async (contract: Contract) => {
-    contract.queryFilter('Donate').then((data: any) => {
-      setSourceData(data.map((item: EventLog) => ({
-        blockHash: item.blockHash,
-        hash: item.args[0],
-        donator: item.args[1],
-        name: item.args[3],
-        amount: item.args[4],
-        message: item.args[5],
-        donateTime: item.args[6],
-      })).reverse())
-    })
+    const log = await contract.queryFilter('Donate') as EventLog[]
+    setSourceData(log.map((item: EventLog) => ({
+      blockHash: item.blockHash,
+      hash: item.args[0],
+      donator: item.args[1],
+      name: item.args[3],
+      amount: item.args[4],
+      message: item.args[5],
+      donateTime: item.args[6],
+    })).reverse())
   }
 
   const column: TableProps<EventDonateData>['columns'] = [

@@ -7,7 +7,7 @@ export function omitHash(hash: string) {
   }
 
   const len = hash.length
-  return `${hash.slice(0, 5)}...${hash.slice(len - 5, len)}`
+  return `${hash.slice(0, 7)}...${hash.slice(len - 5, len)}`
 }
 
 export function blockTimeToStr(time: bigint) {
@@ -46,3 +46,9 @@ export async function queryProjectLog(contract: Contract, hash: string): Promise
     }))
   }
 }
+
+export const supportNetworks = [
+  { chainId: '0x7a69', chainName: 'Hardhat Localhost', deployedAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3' }, // 31337
+  { chainId: '0xaa36a7', chainName: 'Sepolia Testnet', deployedAddress: '' }, // 11155111
+  { chainId: '0x1', chainName: 'Ethereum Mainnet', deployedAddress: '' }, // 1
+]
