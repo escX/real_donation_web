@@ -30,3 +30,5 @@ export interface ProjectLog {
     donateTime: bigint,
   }[]
 }
+
+export const reloadDelay = 10000

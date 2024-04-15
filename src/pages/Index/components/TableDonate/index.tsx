@@ -3,33 +3,39 @@ import { Table, TableProps, Typography } from 'antd'
 import { FC, useEffect, useState } from 'react'
 import { blockTimeToStr, omitHash } from '../../../../utils'
 import { EventDonateData } from './const'
+import { reloadDelay } from '../../const'
 
 interface Props {
-  blockNumber: number
   contract: Contract | null
   onQueryHash: (data: string) => void
 }
 
-const Index: FC<Props> = ({ blockNumber, contract, onQueryHash }) => {
+const Index: FC<Props> = ({ contract, onQueryHash }) => {
   const [sourceData, setSourceData] = useState<EventDonateData[]>([])
 
   useEffect(() => {
-    if (!!contract && !!blockNumber) {
+    if (!!contract) {
       loadData(contract)
     }
-  }, [contract, blockNumber])
+  }, [contract])
 
   const loadData = async (contract: Contract) => {
-    const log = await contract.queryFilter('Donate') as EventLog[]
-    setSourceData(log.map((item: EventLog) => ({
-      blockHash: item.blockHash,
-      hash: item.args[0],
-      donator: item.args[1],
-      name: item.args[3],
-      amount: item.args[4],
-      message: item.args[5],
-      donateTime: item.args[6],
-    })).reverse())
+    try {
+      const log = await contract.queryFilter('Donate') as EventLog[]
+      setSourceData(log.map((item: EventLog) => ({
+        blockHash: item.blockHash,
+        hash: item.args[0],
+        donator: item.args[1],
+        name: item.args[3],
+        amount: item.args[4],
+        message: item.args[5],
+        donateTime: item.args[6],
+      })).reverse())
+    } catch (error) { }
+
+    setTimeout(() => {
+      loadData(contract)
+    }, reloadDelay)
   }
 
   const column: TableProps<EventDonateData>['columns'] = [

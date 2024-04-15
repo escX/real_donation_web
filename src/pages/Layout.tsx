@@ -1,4 +1,4 @@
-import { Divider, Menu, Typography } from 'antd'
+import { Divider, Menu, Result, Typography } from 'antd'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { BrowserProvider, Contract, ethers } from 'ethers'
@@ -115,7 +115,7 @@ export default function Index() {
                 contract
               }} />
             </Suspense> :
-            <></>
+            <Result status="warning" title="当前网络不支持" />
           }
         </div>
       </div>

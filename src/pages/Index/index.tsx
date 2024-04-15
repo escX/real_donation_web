@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Drawer, Tabs, TabsProps } from 'antd'
 import TableCease from './components/TableCease'
 import TableCreate from './components/TableCreate'
@@ -10,35 +10,12 @@ import { queryProjectLog } from '../../utils'
 import PanelTopDonator from './components/PanelTopDonator'
 import { useOutletContext } from 'react-router-dom'
 import { LayoutContext } from '../const'
-import { BrowserProvider } from 'ethers'
 
 export default function Index() {
   const { provider, contract } = useOutletContext<LayoutContext>()
-  const [blockNumber, setBlockNumber] = useState(0)
   const [activedTab, setActivedTab] = useState<ContractEvent>(ContractEvent.Create)
   const [projectLog, setProjectLog] = useState<ProjectLog | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
-
-  useEffect(() => {
-    updateBlockNumber(provider)
-  }, [provider])
-
-  useEffect(() => {
-    if (!!provider && !!contract) {
-      contract.removeAllListeners('*').then(() => {
-        contract.on('*', () => {
-          console.log(111111)
-          updateBlockNumber(provider)
-        })
-      })
-    }
-  }, [provider, contract])
-
-  const updateBlockNumber = (provider: BrowserProvider | null) => {
-    if (!!provider) {
-      provider.getBlockNumber().then(setBlockNumber)
-    }
-  }
 
   const handleQueryHash = (hash: string) => {
     if (!!contract) {
@@ -51,22 +28,22 @@ export default function Index() {
     {
       key: ContractEvent.Create as unknown as string,
       label: '创建',
-      children: <TableCreate blockNumber={activedTab === ContractEvent.Create ? blockNumber : 0} contract={contract} onQueryHash={handleQueryHash} />,
+      children: <TableCreate contract={contract} onQueryHash={handleQueryHash} />,
     },
     {
       key: ContractEvent.Donate as unknown as string,
       label: '捐赠',
-      children: <TableDonate blockNumber={activedTab === ContractEvent.Donate ? blockNumber : 0} contract={contract} onQueryHash={handleQueryHash} />,
+      children: <TableDonate contract={contract} onQueryHash={handleQueryHash} />,
     },
     {
       key: ContractEvent.Cease as unknown as string,
       label: '终止',
-      children: <TableCease blockNumber={activedTab === ContractEvent.Cease ? blockNumber : 0} contract={contract} onQueryHash={handleQueryHash} />,
+      children: <TableCease contract={contract} onQueryHash={handleQueryHash} />,
     },
     {
       key: ContractEvent.Modify as unknown as string,
       label: '修改描述',
-      children: <TableModifyDescription blockNumber={activedTab === ContractEvent.Modify ? blockNumber : 0} contract={contract} onQueryHash={handleQueryHash} />,
+      children: <TableModifyDescription contract={contract} onQueryHash={handleQueryHash} />,
     },
   ]
 

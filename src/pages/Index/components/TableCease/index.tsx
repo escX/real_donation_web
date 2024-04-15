@@ -3,30 +3,36 @@ import { Table, TableProps, Typography } from 'antd'
 import { FC, useEffect, useState } from 'react'
 import { blockTimeToStr, omitHash } from '../../../../utils'
 import { EventCeaseData } from './const'
+import { reloadDelay } from '../../const'
 
 interface Props {
-  blockNumber: number
   contract: Contract | null
   onQueryHash: (data: string) => void
 }
 
-const Index: FC<Props> = ({ blockNumber, contract, onQueryHash }) => {
+const Index: FC<Props> = ({ contract, onQueryHash }) => {
   const [sourceData, setSourceData] = useState<EventCeaseData[]>([])
 
   useEffect(() => {
-    if (!!contract && !!blockNumber) {
+    if (!!contract) {
       loadData(contract)
     }
-  }, [contract, blockNumber])
+  }, [contract])
 
   const loadData = async (contract: Contract) => {
-    const log = await contract.queryFilter('Cease') as EventLog[]
-    setSourceData(log.map((item: EventLog) => ({
-      blockHash: item.blockHash,
-      hash: item.args[0],
-      name: item.args[1],
-      ceaseTime: item.args[2],
-    })).reverse())
+    try {
+      const log = await contract.queryFilter('Cease') as EventLog[]
+      setSourceData(log.map((item: EventLog) => ({
+        blockHash: item.blockHash,
+        hash: item.args[0],
+        name: item.args[1],
+        ceaseTime: item.args[2],
+      })).reverse())
+    } catch (error) { }
+
+    setTimeout(() => {
+      loadData(contract)
+    }, reloadDelay)
   }
 
   const column: TableProps<EventCeaseData>['columns'] = [
