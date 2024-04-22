@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
+import zhCN from 'antd/es/locale/zh_CN'
 import ErrorPage from './error-page'
 import Layout from './pages/Layout'
 import routes from './routes'
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('app')!).render(
   <React.StrictMode>
     <ConfigProvider
+      locale={zhCN}
       theme={{
         "token": {
           "colorPrimary": "#000000",

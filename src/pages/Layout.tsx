@@ -1,4 +1,4 @@
-import { Divider, Menu, Result, Typography } from 'antd'
+import { Divider, Menu, Result, Typography, notification } from 'antd'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { BrowserProvider, Contract, ethers } from 'ethers'
@@ -7,9 +7,11 @@ import abi from '../abi'
 import routes from '../routes'
 import Header from '../components/Header'
 import styles from './layout.module.scss'
+import { NotificationType } from './const'
 
 export default function Index() {
   const [selectedMenuKeys, setSelectedMenuKeys] = useState<string[]>([])
+  const [api, contextHolder] = notification.useNotification()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -80,6 +82,13 @@ export default function Index() {
     }
   }
 
+  const openNotification = (type: NotificationType, message: string, description: string) => {
+    api[type]({
+      message,
+      description,
+    });
+  }
+
   return (
     <div className={styles.layout}>
       <div className={styles.header}>
@@ -112,7 +121,8 @@ export default function Index() {
             <Suspense>
               <Outlet context={{
                 provider,
-                contract
+                contract,
+                openNotification
               }} />
             </Suspense> :
             <Result status="warning" title="当前网络不支持" />
@@ -133,6 +143,8 @@ export default function Index() {
           .&nbsp;All Rights Reserved.
         </Typography.Text>
       </div>
+
+      {contextHolder}
     </div>
   )
 }

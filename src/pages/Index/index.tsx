@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Drawer, Tabs, TabsProps } from 'antd'
+import { Button, Drawer, Tabs, TabsProps } from 'antd'
+import { HeartOutlined } from '@ant-design/icons'
 import TableCease from './components/TableCease'
 import TableCreate from './components/TableCreate'
 import TableModifyDescription from './components/TableModifyDescription'
@@ -10,12 +11,15 @@ import { queryProjectLog } from '../../utils'
 import PanelTopDonator from './components/PanelTopDonator'
 import { useOutletContext } from 'react-router-dom'
 import { LayoutContext } from '../const'
+import DonateModal from '../../components/DonateModal'
+import { DonateData } from '../../components/DonateModal/const'
 
 export default function Index() {
-  const { provider, contract } = useOutletContext<LayoutContext>()
+  const { provider, contract, openNotification } = useOutletContext<LayoutContext>()
   const [activedTab, setActivedTab] = useState<ContractEvent>(ContractEvent.Create)
   const [projectLog, setProjectLog] = useState<ProjectLog | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [donateOpen, setDonateOpen] = useState(false)
 
   const handleQueryHash = (hash: string) => {
     if (!!contract) {
@@ -50,7 +54,7 @@ export default function Index() {
   // 测试代码，未来会删除
   // 记得校验accounts和chainId
   // 记得try catch await-function
-  const hash = '0x4fa5ddce34beab5ab5908812fabe1114beba0f135036ce910cd405bb7f696a71'
+  const hash = '0x4ac29dde26ba0969861d43dfe33159407438424be36f22dcf865871f0d84434b'
   const handleCreate = async () => {
     const signer = await provider?.getSigner()!
     const response = await contract?.connect(signer).getFunction('create')('q', 'w')
@@ -72,11 +76,24 @@ export default function Index() {
     console.log('modify')
   }
 
-  const handleDonate = async () => {
-    const signer = await provider?.getSigner()!
-    const response = await contract?.connect(signer).getFunction('donate')(hash, '我给你捐钱了', { value: 55 })
-    await response.wait()
-    console.log('donate')
+  const handleDonate = async ({ message, value }: DonateData) => {
+    if (!!projectLog?.hash) {
+      try {
+        const signer = await provider?.getSigner()!
+        const response = await contract?.connect(signer).getFunction('donate')(projectLog.hash, message ?? '', { value: value })
+
+        openNotification('success', '捐赠成功', '感谢您的支持！')
+        setDonateOpen(false)
+
+        await response.wait()
+        openNotification('success', '交易已确认', '')
+
+        console.log('donate')
+      } catch(error) {
+        const { message: errorMsg } = error as Error
+        openNotification('error', '交易失败', errorMsg)
+      }
+    }
   }
 
   const handleLog = async () => {
@@ -92,15 +109,27 @@ export default function Index() {
         onChange={value => setActivedTab(value as unknown as ContractEvent)}
       />
 
-      <Drawer title="项目详情" width={700} onClose={() => setDrawerOpen(false)} open={drawerOpen}>
+      <Drawer
+        title="项目详情"
+        width={700}
+        onClose={() => setDrawerOpen(false)} open={drawerOpen}
+        extra={
+          <>
+            {!projectLog?.ceaseTime && <Button type="primary" icon={<HeartOutlined />} onClick={() => setDonateOpen(true)}>
+              捐赠一笔
+            </Button>}
+          </>
+        }
+      >
         <PanelProject projectLog={projectLog} />
         {projectLog?.donateList && projectLog?.donateList.length > 0 && <PanelTopDonator donateList={projectLog.donateList} />}
       </Drawer>
 
+      <DonateModal visible={donateOpen} onClose={() => setDonateOpen(false)} onSubmit={handleDonate} />
+
       <div onClick={handleCreate}>Create</div>
       <div onClick={handleModify}>Modify</div>
       <div onClick={handleCease}>Cease</div>
-      <div onClick={handleDonate}>Donate</div>
       <div onClick={handleLog}>Log</div>
     </>
   )
