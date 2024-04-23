@@ -55,12 +55,6 @@ export default function Index() {
   // 记得校验accounts和chainId
   // 记得try catch await-function
   const hash = '0x4ac29dde26ba0969861d43dfe33159407438424be36f22dcf865871f0d84434b'
-  const handleCreate = async () => {
-    const signer = await provider?.getSigner()!
-    const response = await contract?.connect(signer).getFunction('create')('q', 'w')
-    await response.wait()
-    console.log('creat')
-  }
 
   const handleCease = async () => {
     const signer = await provider?.getSigner()!
@@ -80,15 +74,10 @@ export default function Index() {
     if (!!projectLog?.hash) {
       try {
         const signer = await provider?.getSigner()!
-        const response = await contract?.connect(signer).getFunction('donate')(projectLog.hash, message ?? '', { value: value })
+        await contract?.connect(signer).getFunction('donate')(projectLog.hash, message ?? '', { value: value })
 
-        openNotification('success', '捐赠成功', '感谢您的支持！')
+        openNotification('success', '已捐赠', '感谢您的支持！')
         setDonateOpen(false)
-
-        await response.wait()
-        openNotification('success', '交易已确认', '')
-
-        console.log('donate')
       } catch(error) {
         const { message: errorMsg } = error as Error
         openNotification('error', '交易失败', errorMsg)
@@ -125,9 +114,8 @@ export default function Index() {
         {projectLog?.donateList && projectLog?.donateList.length > 0 && <PanelTopDonator donateList={projectLog.donateList} />}
       </Drawer>
 
-      <DonateModal visible={donateOpen} onClose={() => setDonateOpen(false)} onSubmit={handleDonate} />
+      <DonateModal open={donateOpen} onClose={() => setDonateOpen(false)} onSubmit={handleDonate} />
 
-      <div onClick={handleCreate}>Create</div>
       <div onClick={handleModify}>Modify</div>
       <div onClick={handleCease}>Cease</div>
       <div onClick={handleLog}>Log</div>

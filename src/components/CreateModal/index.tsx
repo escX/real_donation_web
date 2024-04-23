@@ -1,27 +1,22 @@
-import { Form, Input, InputNumber, Modal, Select } from "antd"
+import { Form, Input, Modal } from "antd"
 import { FC, useState } from "react"
-import { DonateData, Unit, unitOptions } from "./const"
-import { parseUnits } from "ethers"
+import { CreateData } from "./const"
 
 interface Props {
   open: boolean
   onClose: () => void
-  onSubmit: (data: DonateData) => Promise<void>
+  onSubmit: (data: CreateData) => Promise<void>
 }
 
 const Index: FC<Props> = ({open, onClose, onSubmit}) => {
   const [formRef] = Form.useForm()
   const [confirmLoading, setConfirmLoading] = useState(false)
-  const [uint, setUint] = useState(Unit.Wei)
 
   const handleSubmit = async () => {
     try {
       const values = await formRef.validateFields()
       setConfirmLoading(true)
-      await onSubmit({
-        ...values,
-        value: parseUnits(values.value.toString(), uint)
-      })
+      await onSubmit(values)
       setConfirmLoading(false)
     } catch(error) {
       setConfirmLoading(false)
@@ -30,7 +25,7 @@ const Index: FC<Props> = ({open, onClose, onSubmit}) => {
   }
 
   return <Modal
-    title="捐赠"
+    title="创建项目"
     destroyOnClose
     maskClosable={false}
     open={open}
@@ -40,31 +35,34 @@ const Index: FC<Props> = ({open, onClose, onSubmit}) => {
   >
     <Form form={formRef} labelCol={{ span: 4 }} preserve={false}>
       <Form.Item
-        label="捐赠金额"
-        name="value"
+        label="项目名称"
+        name="name"
         rules={[
-          { required: true, message: '捐赠金额不能为空！'}
+          { required: true, message: '项目名称不能为空！'},
+          {
+            validator(_, value) {
+              const bytes = new TextEncoder().encode(value)
+              if (bytes.length > 64 || bytes.length < 1) {
+                return Promise.reject(new Error('项目名称超过允许的长度！'))
+              }
+
+              return Promise.resolve()
+            },
+          }
         ]}
       >
-        <InputNumber
-          min={1}
-          step={1}
-          addonAfter={
-            <Select options={unitOptions} value={uint} onChange={setUint} style={{width: 90}} />
-          }
-          style={{ width: '100%' }}
-        />
+        <Input />
       </Form.Item>
 
       <Form.Item
-        label="留言"
-        name="message"
+        label="描述"
+        name="description"
         rules={[
           {
             validator(_, value) {
               const bytes = new TextEncoder().encode(value)
-              if (bytes.length > 256) {
-                return Promise.reject(new Error('留言超过允许的长度！'))
+              if (bytes.length > 1024) {
+                return Promise.reject(new Error('描述超过允许的长度！'))
               }
 
               return Promise.resolve()

@@ -8,10 +8,13 @@ import routes from '../routes'
 import Header from '../components/Header'
 import styles from './layout.module.scss'
 import { NotificationType } from './const'
+import CreateModal from '../components/CreateModal'
+import { CreateData } from '../components/CreateModal/const'
 
 export default function Index() {
   const [selectedMenuKeys, setSelectedMenuKeys] = useState<string[]>([])
   const [api, contextHolder] = notification.useNotification()
+  const [createOpen, setCreateOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -76,6 +79,19 @@ export default function Index() {
     }
   }
 
+  const handleCreate = async ({name, description}: CreateData) => {
+    try {
+      const signer = await provider?.getSigner()!
+      await contract?.connect(signer).getFunction('create')(name, description || '')
+
+      openNotification('success', '已捐赠', '感谢您的支持！')
+      setCreateOpen(false)
+    } catch(error) {
+      const { message: errorMsg } = error as Error
+      openNotification('error', '交易失败', errorMsg)
+    }
+  }
+
   const handleSwitchNetwork = async (chainId: string) => {
     if (!!provider) {
       await provider.send('wallet_switchEthereumChain', [{ chainId }])
@@ -97,6 +113,7 @@ export default function Index() {
           accounts={accounts}
           onNetworkChange={handleSwitchNetwork}
           onConnect={handleConnet}
+          onCreate={() => setCreateOpen(true)}
         />
 
         <Divider className={styles.divider} />
@@ -143,6 +160,12 @@ export default function Index() {
           .&nbsp;All Rights Reserved.
         </Typography.Text>
       </div>
+
+      <CreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSubmit={handleCreate}
+      />
 
       {contextHolder}
     </div>
