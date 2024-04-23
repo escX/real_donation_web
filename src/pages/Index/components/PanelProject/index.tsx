@@ -1,5 +1,5 @@
 import { FC, useMemo } from 'react'
-import { blockTimeToStr, omitHash } from '../../../../utils'
+import { blockTimeToStr, ellipsisHash } from '../../../../utils'
 import { Badge, Collapse, Descriptions, DescriptionsProps, Typography } from 'antd'
 import { ProjectLog } from '../../const'
 
@@ -51,7 +51,7 @@ const Index: FC<Props> = ({ projectLog }) => {
           {
             label: '捐赠人',
             children: <Typography.Text copyable={{ text: item.donator }}>
-              {omitHash(item.donator)}
+              {ellipsisHash(item.donator)}
             </Typography.Text>,
           },
           {
@@ -105,13 +105,13 @@ const Index: FC<Props> = ({ projectLog }) => {
       {
         label: '项目哈希',
         children: <Typography.Text copyable={{ text: projectLog.hash }}>
-          {omitHash(projectLog.hash)}
+          {ellipsisHash(projectLog.hash, 5)}
         </Typography.Text>
       },
       {
         label: '创建人',
         children: <Typography.Text copyable={{ text: projectLog.creator }}>
-          {omitHash(projectLog.creator)}
+          {ellipsisHash(projectLog.creator)}
         </Typography.Text>
       },
       {

@@ -1,7 +1,7 @@
 import { Contract, EventLog } from 'ethers'
 import { Table, TableProps, Typography } from 'antd'
 import { FC, useEffect, useState } from 'react'
-import { blockTimeToStr, omitHash } from '../../../../utils'
+import { blockTimeToStr, ellipsisHash } from '../../../../utils'
 import { EventCreateData } from './const'
 import { reloadDelay } from '../../const'
 
@@ -45,21 +45,21 @@ const Index: FC<Props> = ({ contract, onQueryHash }) => {
       title: '项目哈希',
       dataIndex: 'hash',
       render: value => <Typography.Link copyable={{ text: value }} onClick={() => onQueryHash(value)}>
-        {omitHash(value)}
+        {ellipsisHash(value, 5)}
       </Typography.Link>
     },
     {
       title: '创建人',
       dataIndex: 'creator',
       render: value => <Typography.Paragraph copyable={{ text: value }} style={{ margin: 0 }}>
-        {omitHash(value)}
+        {ellipsisHash(value)}
       </Typography.Paragraph>
     },
     {
       title: '区块哈希',
       dataIndex: 'blockHash',
       render: value => <Typography.Paragraph copyable={{ text: value }} style={{ margin: 0 }}>
-        {omitHash(value)}
+        {ellipsisHash(value, 5)}
       </Typography.Paragraph>
     },
     {

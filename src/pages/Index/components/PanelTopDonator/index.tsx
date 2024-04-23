@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react'
 import { ProjectLog } from '../../const'
 import { Table, Typography } from 'antd'
-import { omitHash } from '../../../../utils'
+import { ellipsisHash } from '../../../../utils'
 
 interface Props {
   donateList: ProjectLog['donateList']
@@ -32,7 +32,7 @@ const Index: FC<Props> = ({ donateList }) => {
       title: '捐赠人',
       dataIndex: 'donator',
       render: (value: string) => <Typography.Text copyable={{ text: value }}>
-        {omitHash(value)}
+        {ellipsisHash(value)}
       </Typography.Text>
     },
     {

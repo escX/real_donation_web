@@ -15,7 +15,7 @@ import DonateModal from '../../components/DonateModal'
 import { DonateData } from '../../components/DonateModal/const'
 
 export default function Index() {
-  const { provider, contract, openNotification } = useOutletContext<LayoutContext>()
+  const { signer, contract, openNotification } = useOutletContext<LayoutContext>()
   const [activedTab, setActivedTab] = useState<ContractEvent>(ContractEvent.Create)
   const [projectLog, setProjectLog] = useState<ProjectLog | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -51,38 +51,35 @@ export default function Index() {
     },
   ]
 
+  const handleDonate = async ({ message, value }: DonateData) => {
+    try {
+      if (!!projectLog?.hash && !!contract && !!signer) {
+        await contract.connect(signer).getFunction('donate')(projectLog.hash, message ?? '', { value: value })
+
+        openNotification('success', '已捐赠', '感谢您的支持！')
+        setDonateOpen(false)
+      }
+    } catch (error) {
+      const { message: errorMsg } = error as Error
+      openNotification('error', '交易失败', errorMsg)
+    }
+  }
+
   // 测试代码，未来会删除
-  // 记得校验accounts和chainId
+  // 记得更新列表和详情捐赠后数据
   // 记得try catch await-function
   const hash = '0x4ac29dde26ba0969861d43dfe33159407438424be36f22dcf865871f0d84434b'
 
   const handleCease = async () => {
-    const signer = await provider?.getSigner()!
     const response = await contract?.connect(signer).getFunction('cease')(hash)
     await response.wait()
     console.log('cease')
   }
 
   const handleModify = async () => {
-    const signer = await provider?.getSigner()!
     const response = await contract?.connect(signer).getFunction('modifyDescription')(hash, '修改了')
     await response.wait()
     console.log('modify')
-  }
-
-  const handleDonate = async ({ message, value }: DonateData) => {
-    if (!!projectLog?.hash) {
-      try {
-        const signer = await provider?.getSigner()!
-        await contract?.connect(signer).getFunction('donate')(projectLog.hash, message ?? '', { value: value })
-
-        openNotification('success', '已捐赠', '感谢您的支持！')
-        setDonateOpen(false)
-      } catch(error) {
-        const { message: errorMsg } = error as Error
-        openNotification('error', '交易失败', errorMsg)
-      }
-    }
   }
 
   const handleLog = async () => {

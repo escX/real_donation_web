@@ -1,8 +1,8 @@
 import { Divider, Menu, Result, Typography, notification } from 'antd'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { BrowserProvider, Contract, ethers } from 'ethers'
-import { supportNetworks } from '../utils'
+import { Contract, ethers } from 'ethers'
+import { supportNetworks, useMetaMask } from '../utils'
 import abi from '../abi'
 import routes from '../routes'
 import Header from '../components/Header'
@@ -18,14 +18,27 @@ export default function Index() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const [provider, setProvider] = useState<BrowserProvider | null>(null)
-  const [contract, setContract] = useState<Contract | null>(null)
-  const [chainId, setChainId] = useState<string>(supportNetworks[0].chainId)
-  const [accounts, setAccounts] = useState<string[]>([])
+  const {
+    provider,
+    signer,
+    chainId,
+    account,
+    connet,
+    changeNetwork,
+  } = useMetaMask(supportNetworks)
 
   const isSupportNetwork = useMemo(() => {
-    return supportNetworks.map(item => item.chainId).includes(chainId)
+    return chainId && supportNetworks.map(item => item.chainId).includes(chainId)
   }, [chainId])
+
+  const contract = useMemo<Contract | null>(() => {
+    const selectedNetwork = supportNetworks.find(item => item.chainId === chainId)
+    if (!provider || !selectedNetwork) {
+      return null
+    }
+
+    return new ethers.Contract(selectedNetwork.deployedAddress, abi, provider)
+  }, [provider, chainId])
 
   useEffect(() => {
     setSelectedMenuKeys([location.pathname])
@@ -36,65 +49,28 @@ export default function Index() {
     setSelectedMenuKeys([key])
   }
 
-  useEffect(() => {
-    if (!!window.ethereum) {
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      setProvider(provider)
-
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
-        setAccounts(accounts)
-      })
-
-      window.ethereum.on('chainChanged', (chainId: string) => {
-        setChainId(chainId)
-      })
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!!provider) {
-      provider.send('eth_chainId', []).then(chainId => {
-        setChainId(chainId)
-      })
-
-      provider.send('eth_accounts', []).then(accounts => {
-        setAccounts(accounts)
-      })
-    }
-  }, [provider])
-
-  useEffect(() => {
-    if (!!provider && !!chainId) {
-      const selectedNetwork = supportNetworks.find(item => item.chainId === chainId)
-      const deployedAddress = !!selectedNetwork ? selectedNetwork.deployedAddress : supportNetworks[0].deployedAddress
-      const contract = new ethers.Contract(deployedAddress, abi, provider)
-      setContract(contract)
-    }
-  }, [provider, chainId])
-
   const handleConnet = async () => {
-    if (!!provider) {
-      await provider.send('eth_requestAccounts', [])
-      handleSwitchNetwork(chainId)
-    }
-  }
-
-  const handleCreate = async ({name, description}: CreateData) => {
-    try {
-      const signer = await provider?.getSigner()!
-      await contract?.connect(signer).getFunction('create')(name, description || '')
-
-      openNotification('success', '已捐赠', '感谢您的支持！')
-      setCreateOpen(false)
-    } catch(error) {
-      const { message: errorMsg } = error as Error
-      openNotification('error', '交易失败', errorMsg)
+    await connet()
+    if (!!chainId) {
+      await changeNetwork(chainId)
     }
   }
 
   const handleSwitchNetwork = async (chainId: string) => {
-    if (!!provider) {
-      await provider.send('wallet_switchEthereumChain', [{ chainId }])
+    await changeNetwork(chainId)
+  }
+
+  const handleCreate = async ({ name, description }: CreateData) => {
+    try {
+      if (!!contract && !!signer) {
+        await contract.connect(signer).getFunction('create')(name, description || '')
+
+        openNotification('success', '已创建', '请在“我的项目”中查看')
+        setCreateOpen(false)
+      }
+    } catch (error) {
+      const { message: errorMsg } = error as Error
+      openNotification('error', '交易失败', errorMsg)
     }
   }
 
@@ -102,7 +78,7 @@ export default function Index() {
     api[type]({
       message,
       description,
-    });
+    })
   }
 
   return (
@@ -110,7 +86,7 @@ export default function Index() {
       <div className={styles.header}>
         <Header
           chainId={chainId}
-          accounts={accounts}
+          account={account}
           onNetworkChange={handleSwitchNetwork}
           onConnect={handleConnet}
           onCreate={() => setCreateOpen(true)}
@@ -138,6 +114,8 @@ export default function Index() {
             <Suspense>
               <Outlet context={{
                 provider,
+                signer,
+                account,
                 contract,
                 openNotification
               }} />
