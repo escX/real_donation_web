@@ -21,12 +21,13 @@ const Index: FC<Props> = ({ contract, onQueryHash }) => {
 
   const loadData = async (contract: Contract) => {
     try {
-      const log = await contract.queryFilter('Create') as EventLog[]
-      setSourceData(log.map(item => ({
+      const logs = await contract.queryFilter('Create') as EventLog[]
+      setSourceData(logs.map(item => ({
         blockHash: item.blockHash,
         hash: item.args[0],
         creator: item.args[1],
         name: item.args[2],
+        description: item.args[3],
         createTime: item.args[4],
       })).reverse())
     } catch (error) { }
@@ -45,7 +46,7 @@ const Index: FC<Props> = ({ contract, onQueryHash }) => {
       title: '项目哈希',
       dataIndex: 'hash',
       render: value => <Typography.Link copyable={{ text: value }} onClick={() => onQueryHash(value)}>
-        {ellipsisHash(value, 5)}
+        {ellipsisHash(value)}
       </Typography.Link>
     },
     {
@@ -59,7 +60,7 @@ const Index: FC<Props> = ({ contract, onQueryHash }) => {
       title: '区块哈希',
       dataIndex: 'blockHash',
       render: value => <Typography.Paragraph copyable={{ text: value }} style={{ margin: 0 }}>
-        {ellipsisHash(value, 5)}
+        {ellipsisHash(value)}
       </Typography.Paragraph>
     },
     {

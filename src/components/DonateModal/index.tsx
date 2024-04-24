@@ -42,6 +42,7 @@ const Index: FC<Props> = ({open, onClose, onSubmit}) => {
       <Form.Item
         label="捐赠金额"
         name="value"
+        validateFirst
         rules={[
           { required: true, message: '捐赠金额不能为空！'}
         ]}
@@ -59,6 +60,7 @@ const Index: FC<Props> = ({open, onClose, onSubmit}) => {
       <Form.Item
         label="留言"
         name="message"
+        validateFirst
         rules={[
           {
             validator(_, value) {

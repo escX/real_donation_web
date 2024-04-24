@@ -105,7 +105,7 @@ const Index: FC<Props> = ({ projectLog }) => {
       {
         label: '项目哈希',
         children: <Typography.Text copyable={{ text: projectLog.hash }}>
-          {ellipsisHash(projectLog.hash, 5)}
+          {ellipsisHash(projectLog.hash)}
         </Typography.Text>
       },
       {

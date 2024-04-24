@@ -37,6 +37,7 @@ const Index: FC<Props> = ({open, onClose, onSubmit}) => {
       <Form.Item
         label="项目名称"
         name="name"
+        validateFirst
         rules={[
           { required: true, message: '项目名称不能为空！'},
           {
@@ -57,6 +58,7 @@ const Index: FC<Props> = ({open, onClose, onSubmit}) => {
       <Form.Item
         label="描述"
         name="description"
+        validateFirst
         rules={[
           {
             validator(_, value) {
