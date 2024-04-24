@@ -13,7 +13,7 @@ import PanelTopDonator from "../Index/components/PanelTopDonator"
 export default function MyProject() {
   const { contract, signer, account, openNotification } = useOutletContext<LayoutContext>()
   const [modal, contextHolder] = Modal.useModal()
-  const [projectList, setProjectList] = useState<EventCreateData[]>([])
+  const [createData, setCreateData] = useState<EventCreateData[]>([])
   const [projectLog, setProjectLog] = useState<ProjectLog[]>([])
   const [modifyOpen, setModifyOpen] = useState(false)
   const [currentHash, setCurrentHash] = useState<string>()
@@ -25,11 +25,11 @@ export default function MyProject() {
   }
 
   const projectData = useMemo(() => {
-    if (projectList.length === 0 || projectLog.length === 0) {
+    if (createData.length === 0 || projectLog.length === 0) {
       return []
     }
 
-    return projectList.map(item => {
+    return createData.map(item => {
       const log = projectLog.find(log => log.hash === item.hash)
       if (!log) {
         return item
@@ -47,7 +47,7 @@ export default function MyProject() {
         description,
       }
     })
-  }, [projectList, projectLog])
+  }, [createData, projectLog])
 
   useEffect(() => {
     if (!!contract && !!account) {
@@ -55,7 +55,7 @@ export default function MyProject() {
       const creator = ethers.zeroPadValue(account, 32)
 
       contract.queryFilter([selectorSignature, null, creator]).then(logs => {
-        setProjectList((logs as EventLog[]).map(item => ({
+        setCreateData((logs as EventLog[]).map(item => ({
           blockHash: item.blockHash,
           hash: item.args[0],
           creator: item.args[1],
@@ -123,7 +123,7 @@ export default function MyProject() {
         setModifyOpen(false)
 
         await tx.wait()
-        loadLogData(contract, projectList.map(item => item.hash))
+        loadLogData(contract, createData.map(item => item.hash))
       }
     } catch (error) {
       const { message: errorMsg } = error as Error
@@ -147,7 +147,7 @@ export default function MyProject() {
             openNotification('success', '已终止项目', '')
 
             await tx.wait()
-            loadLogData(contract, projectList.map(item => item.hash))
+            loadLogData(contract, createData.map(item => item.hash))
           }
         } catch (error) {
           const { message: errorMsg } = error as Error

@@ -85,9 +85,7 @@ const Index: FC<Props> = ({ contract, onQueryHash }) => {
       rowKey="blockHash"
       columns={column}
       dataSource={sourceData}
-      pagination={{
-        total: sourceData.length
-      }}
+      pagination={false}
     />
   )
 }
