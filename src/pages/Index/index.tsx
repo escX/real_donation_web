@@ -65,28 +65,6 @@ export default function Index() {
     }
   }
 
-  // 测试代码，未来会删除
-  // 记得更新列表和详情捐赠后数据
-  // 记得try catch await-function
-  const hash = '0x4ac29dde26ba0969861d43dfe33159407438424be36f22dcf865871f0d84434b'
-
-  const handleCease = async () => {
-    const response = await contract?.connect(signer).getFunction('cease')(hash)
-    await response.wait()
-    console.log('cease')
-  }
-
-  const handleModify = async () => {
-    const response = await contract?.connect(signer).getFunction('modifyDescription')(hash, '修改了')
-    await response.wait()
-    console.log('modify')
-  }
-
-  const handleLog = async () => {
-    const transferEvents = await contract?.queryFilter('Create', 0, 'latest')
-    console.log('Logs:', transferEvents)
-  }
-
   return (
     <>
       <Tabs
@@ -112,10 +90,6 @@ export default function Index() {
       </Drawer>
 
       <DonateModal open={donateOpen} onClose={() => setDonateOpen(false)} onSubmit={handleDonate} />
-
-      <div onClick={handleModify}>Modify</div>
-      <div onClick={handleCease}>Cease</div>
-      <div onClick={handleLog}>Log</div>
     </>
   )
 }

@@ -11,7 +11,7 @@ import { NotificationType } from './const'
 import CreateModal from '../components/CreateModal'
 import { CreateData } from '../components/CreateModal/const'
 
-export default function Index() {
+export default function Layout() {
   const [selectedMenuKeys, setSelectedMenuKeys] = useState<string[]>([])
   const [api, contextHolder] = notification.useNotification()
   const [createOpen, setCreateOpen] = useState(false)
